@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Quiz App</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: #f4f7f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .quiz-container {
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        max-width: 600px;
+        width: 100%;
+    }
+
+    h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .question {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .options {
+        list-style: none;
+        padding: 0;
+    }
+
+    .options li {
+        background: #f0f0f0;
+        padding: 10px 15px;
+        margin: 8px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .options li:hover {
+        background: #dfe6e9;
+    }
+
+    .correct {
+        background: #a8e6a3 !important;
+    }
+
+    .wrong {
+        background: #f19c9c !important;
+    }
+
+    .next-btn {
+        margin-top: 20px;
+        display: inline-block;
+        padding: 10px 20px;
+        background: #0984e3;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .next-btn:hover {
+        background: #74b9ff;
+    }
+
+    .score-container {
+        text-align: center;
+        font-size: 22px;
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h2>Dynamic Quiz App</h2>
+    <div id="quiz">
+        <!-- Questions will be injected here -->
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "Which company developed JavaScript?",
+        options: ["Microsoft", "Netscape", "Sun Microsystems", "Oracle"],
+        answer: "Netscape"
+    },
+    {
+        question: "Which symbol is used for comments in JavaScript?",
+        options: ["//", "/* */", "#", "<!-- -->"],
+        answer: "//"
+    },
+    {
+        question: "Which method converts JSON to a JavaScript object?",
+        options: ["JSON.parse()", "JSON.stringify()", "JSON.convert()", "JSON.objectify()"],
+        answer: "JSON.parse()"
+    },
+    {
+        question: "Which keyword declares a block-scoped variable?",
+        options: ["var", "let", "const", "Both let and const"],
+        answer: "Both let and const"
+    },
+    {
+        question: "jQuery is a library for which language?",
+        options: ["Java", "JavaScript", "Python", "C#"],
+        answer: "JavaScript"
+    },
+    {
+        question: "Which method is used to hide elements in jQuery?",
+        options: [".hide()", ".remove()", ".displayNone()", ".invisible()"],
+        answer: ".hide()"
+    },
+    {
+        question: "What does === mean in JavaScript?",
+        options: ["Assignment", "Equality without type conversion", "Equality with type conversion", "Not equal"],
+        answer: "Equality without type conversion"
+    },
+    {
+        question: "Which function is used to delay execution in JavaScript?",
+        options: ["setTimeout()", "setDelay()", "wait()", "sleep()"],
+        answer: "setTimeout()"
+    },
+    {
+        question: "Which event occurs when a user clicks on an element?",
+        options: ["onhover", "onclick", "onload", "onchange"],
+        answer: "onclick"
+    },
+    {
+        question: "Which property gets the content of an input field in jQuery?",
+        options: [".val()", ".text()", ".html()", ".content()"],
+        answer: ".val()"
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+const quiz = document.getElementById('quiz');
+
+function loadQuestion() {
+    if (currentQuestion >= quizData.length) {
+        quiz.innerHTML = `<div class="score-container">You scored ${score} out of ${quizData.length}</div>`;
+        return;
+    }
+
+    const q = quizData[currentQuestion];
+    let optionsHtml = '';
+    q.options.forEach(option => {
+        optionsHtml += `<li onclick="selectOption(this, '${q.answer}')">${option}</li>`;
+    });
+
+    quiz.innerHTML = `
+        <div class="question">${q.question}</div>
+        <ul class="options">${optionsHtml}</ul>
+        <button class="next-btn" onclick="nextQuestion()">Next</button>
+    `;
+}
+
+function selectOption(selected, correctAnswer) {
+    const options = document.querySelectorAll('.options li');
+    options.forEach(option => {
+        option.style.pointerEvents = 'none';
+        if (option.innerText === correctAnswer) {
+            option.classList.add('correct');
+        } 
+    });
+
+    if (selected.innerText === correctAnswer) {
+        score++;
+        selected.classList.add('correct');
+    } else {
+        selected.classList.add('wrong');
+    }
+}
+
+function nextQuestion() {
+    currentQuestion++;
+    loadQuestion();
+}
+
+// Initial load
+loadQuestion();
+</script>
+
+</body>
+</html>
