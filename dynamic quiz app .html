@@ -1,202 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dynamic Quiz App</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+/* ---------- Typography ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    body {
-        font-family: 'Roboto', sans-serif;
-        background: #f4f7f8;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
+:root{
+  --accent: #0ea5e9;
+  --card-bg: rgba(255,255,255,0.70);
+  --muted: #6b7280;
+  --glass-blur: 10px;
+  --max-width: 720px;
+}
 
-    .quiz-container {
-        background: #fff;
-        padding: 30px 40px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        max-width: 600px;
-        width: 100%;
-    }
+/* ---------- Page + Animated Gradient Blobs ---------- */
+*{box-sizing: border-box}
+html,body{
+  height:100%;
+  margin:0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  background: linear-gradient(180deg, #0f172a 0%, #071130 60%);
+  color:#0b1220;
+}
 
-    h2 {
-        margin-bottom: 20px;
-        font-size: 24px;
-        text-align: center;
-    }
+/* container to center app and hold background shapes */
+.page {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:48px 20px;
+  position:relative;
+  overflow:hidden;
+}
 
-    .question {
-        font-size: 18px;
-        margin-bottom: 15px;
-    }
+/* animated soft blobs using pseudo elements */
+.page::before,
+.page::after{
+  content:"";
+  position:absolute;
+  width:720px;
+  height:720px;
+  border-radius:50%;
+  filter: blur(90px);
+  opacity:0.7;
+  transform: translate3d(0,0,0);
+  will-change: transform, opacity;
+  animation: floaty 12s ease-in-out infinite;
+  pointer-events:none;
+}
 
-    .options {
-        list-style: none;
-        padding: 0;
-    }
+/* two blobs with different gradients + timings */
+.page::before{
+  left: -18%;
+  top: -10%;
+  background: radial-gradient(circle at 30% 30%, rgba(14,165,233,0.20), rgba(14,165,233,0.06) 40%, transparent 60%),
+              radial-gradient(circle at 70% 70%, rgba(99,102,241,0.14), transparent 30%);
+  animation-duration: 16s;
+}
+.page::after{
+  right: -18%;
+  bottom: -10%;
+  background: radial-gradient(circle at 50% 40%, rgba(99,102,241,0.18), rgba(236,72,153,0.06) 40%, transparent 60%),
+              radial-gradient(circle at 20% 70%, rgba(14,165,233,0.08), transparent 30%);
+  animation-duration: 20s;
+  animation-delay: 2s;
+}
 
-    .options li {
-        background: #f0f0f0;
-        padding: 10px 15px;
-        margin: 8px 0;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+@keyframes floaty{
+  0% { transform: translateY(0) scale(1); opacity:0.85 }
+  50% { transform: translateY(24px) scale(1.05); opacity:0.9 }
+  100% { transform: translateY(0) scale(1); opacity:0.85 }
+}
 
-    .options li:hover {
-        background: #dfe6e9;
-    }
+/* faint geometric pattern overlay using repeating linear gradients */
+.page .pattern {
+  position:absolute;
+  inset:0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 28px),
+    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  mix-blend-mode: overlay;
+  pointer-events:none;
+  z-index:0;
+}
 
-    .correct {
-        background: #a8e6a3 !important;
-    }
+/* ---------- Quiz Card (glass) ---------- */
+.quiz-container {
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:var(--max-width);
+  margin:0 auto;
+  background: var(--card-bg);
+  border-radius:14px;
+  box-shadow: 0 12px 40px rgba(2,6,23,0.45);
+  padding:32px;
+  backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.06);
+}
 
-    .wrong {
-        background: #f19c9c !important;
-    }
+/* header */
+h2 {
+  margin:0 0 14px 0;
+  font-weight:700;
+  font-size:20px;
+  color:#071030;
+  letter-spacing:0.2px;
+  text-align:center;
+}
 
-    .next-btn {
-        margin-top: 20px;
-        display: inline-block;
-        padding: 10px 20px;
-        background: #0984e3;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-    }
+/* question box */
+.question {
+  font-size:18px;
+  margin-bottom:14px;
+  color:#071030;
+  font-weight:600;
+}
 
-    .next-btn:hover {
-        background: #74b9ff;
-    }
+/* options */
+.options {
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:grid;
+  gap:10px;
+}
+.options li{
+  padding:12px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+  border: 1px solid rgba(11,17,32,0.04);
+  box-shadow: 0 2px 8px rgba(2,6,23,0.06);
+  user-select:none;
+  font-weight:500;
+  color:#071030;
+}
+.options li:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(2,6,23,0.10);
+}
 
-    .score-container {
-        text-align: center;
-        font-size: 22px;
-    }
+/* answer states */
+.correct{
+  background: linear-gradient(90deg, rgba(10,200,120,0.12), rgba(10,200,120,0.04)) !important;
+  border-color: rgba(10,200,120,0.18) !important;
+  box-shadow: 0 6px 18px rgba(10,200,120,0.06) !important;
+}
+.wrong{
+  background: linear-gradient(90deg, rgba(255,80,80,0.10), rgba(255,80,80,0.04)) !important;
+  border-color: rgba(255,80,80,0.16) !important;
+  box-shadow: 0 6px 18px rgba(255,80,80,0.06) !important;
+}
+
+/* next button */
+.next-btn {
+  margin-top:20px;
+  display:inline-block;
+  padding:10px 20px;
+  background: linear-gradient(90deg, var(--accent), #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:600;
+  box-shadow: 0 8px 20px rgba(15,46,65,0.18);
+}
+.next-btn:active{ transform: translateY(1px) }
+
+/* final score style */
+.score-container {
+  text-align:center;
+  font-size:22px;
+  padding:28px 10px;
+  font-weight:700;
+  color:#071030;
+}
+
+/* responsive */
+@media (max-width:480px){
+  .quiz-container{ padding:20px; border-radius:12px; }
+  h2{ font-size:18px }
+  .question{ font-size:16px }
+  .next-btn{ width:100% }
+}
 </style>
 </head>
 <body>
+  <div class="page">
+    <div class="pattern" aria-hidden="true"></div>
 
-<div class="quiz-container">
-    <h2>Dynamic Quiz App</h2>
-    <div id="quiz">
-        <!-- Questions will be injected here -->
+    <div class="quiz-container">
+      <h2>Dynamic Quiz App</h2>
+      <div id="quiz"></div>
     </div>
-</div>
+  </div>
 
 <script>
 const quizData = [
-    {
-        question: "Which company developed JavaScript?",
-        options: ["Microsoft", "Netscape", "Sun Microsystems", "Oracle"],
-        answer: "Netscape"
-    },
-    {
-        question: "Which symbol is used for comments in JavaScript?",
-        options: ["//", "/* */", "#", "<!-- -->"],
-        answer: "//"
-    },
-    {
-        question: "Which method converts JSON to a JavaScript object?",
-        options: ["JSON.parse()", "JSON.stringify()", "JSON.convert()", "JSON.objectify()"],
-        answer: "JSON.parse()"
-    },
-    {
-        question: "Which keyword declares a block-scoped variable?",
-        options: ["var", "let", "const", "Both let and const"],
-        answer: "Both let and const"
-    },
-    {
-        question: "jQuery is a library for which language?",
-        options: ["Java", "JavaScript", "Python", "C#"],
-        answer: "JavaScript"
-    },
-    {
-        question: "Which method is used to hide elements in jQuery?",
-        options: [".hide()", ".remove()", ".displayNone()", ".invisible()"],
-        answer: ".hide()"
-    },
-    {
-        question: "What does === mean in JavaScript?",
-        options: ["Assignment", "Equality without type conversion", "Equality with type conversion", "Not equal"],
-        answer: "Equality without type conversion"
-    },
-    {
-        question: "Which function is used to delay execution in JavaScript?",
-        options: ["setTimeout()", "setDelay()", "wait()", "sleep()"],
-        answer: "setTimeout()"
-    },
-    {
-        question: "Which event occurs when a user clicks on an element?",
-        options: ["onhover", "onclick", "onload", "onchange"],
-        answer: "onclick"
-    },
-    {
-        question: "Which property gets the content of an input field in jQuery?",
-        options: [".val()", ".text()", ".html()", ".content()"],
-        answer: ".val()"
-    }
+  { question: "Which company developed JavaScript?", options: ["Microsoft","Netscape","Sun Microsystems","Oracle"], answer: "Netscape" },
+  { question: "Which symbol is used for comments in JavaScript?", options: ["//","/* */","#","<!-- -->"], answer: "//" },
+  { question: "Which method converts JSON to a JavaScript object?", options: ["JSON.parse()","JSON.stringify()","JSON.convert()","JSON.objectify()"], answer: "JSON.parse()" },
+  { question: "Which keyword declares a block-scoped variable?", options: ["var","let","const","Both let and const"], answer: "Both let and const" },
+  { question: "jQuery is a library for which language?", options: ["Java","JavaScript","Python","C#"], answer: "JavaScript" },
+  { question: "Which method is used to hide elements in jQuery?", options: [".hide()", ".remove()", ".displayNone()", ".invisible()"], answer: ".hide()" },
+  { question: "What does === mean in JavaScript?", options: ["Assignment","Equality without type conversion","Equality with type conversion","Not equal"], answer: "Equality without type conversion" },
+  { question: "Which function is used to delay execution in JavaScript?", options: ["setTimeout()","setDelay()","wait()","sleep()"], answer: "setTimeout()" },
+  { question: "Which event occurs when a user clicks on an element?", options: ["onhover","onclick","onload","onchange"], answer: "onclick" },
+  { question: "Which property gets the content of an input field in jQuery?", options: [".val()", ".text()", ".html()", ".content()"], answer: ".val()" }
 ];
 
 let currentQuestion = 0;
 let score = 0;
-
 const quiz = document.getElementById('quiz');
 
-function loadQuestion() {
-    if (currentQuestion >= quizData.length) {
-        quiz.innerHTML = `<div class="score-container">You scored ${score} out of ${quizData.length}</div>`;
-        return;
-    }
+function loadQuestion(){
+  if (currentQuestion >= quizData.length){
+    quiz.innerHTML = `<div class="score-container">You scored ${score} out of ${quizData.length}</div>`;
+    return;
+  }
+  const q = quizData[currentQuestion];
+  let optionsHtml = '';
+  q.options.forEach(option => {
+    // escape quotes for safety in inline handler
+    optionsHtml += `<li onclick="selectOption(this, ${JSON.stringify(q.answer)})">${option}</li>`;
+  });
 
-    const q = quizData[currentQuestion];
-    let optionsHtml = '';
-    q.options.forEach(option => {
-        optionsHtml += `<li onclick="selectOption(this, '${q.answer}')">${option}</li>`;
-    });
-
-    quiz.innerHTML = `
-        <div class="question">${q.question}</div>
-        <ul class="options">${optionsHtml}</ul>
-        <button class="next-btn" onclick="nextQuestion()">Next</button>
-    `;
+  quiz.innerHTML = `
+    <div class="question">${q.question}</div>
+    <ul class="options">${optionsHtml}</ul>
+    <button class="next-btn" onclick="nextQuestion()">Next</button>
+  `;
 }
 
 function selectOption(selected, correctAnswer) {
-    const options = document.querySelectorAll('.options li');
-    options.forEach(option => {
-        option.style.pointerEvents = 'none';
-        if (option.innerText === correctAnswer) {
-            option.classList.add('correct');
-        } 
-    });
+  const options = document.querySelectorAll('.options li');
+  options.forEach(option => {
+    option.style.pointerEvents = 'none';
+    if (option.innerText === correctAnswer) option.classList.add('correct');
+  });
 
-    if (selected.innerText === correctAnswer) {
-        score++;
-        selected.classList.add('correct');
-    } else {
-        selected.classList.add('wrong');
-    }
+  if (selected.innerText === correctAnswer) {
+    score++;
+    selected.classList.add('correct');
+  } else {
+    selected.classList.add('wrong');
+  }
 }
 
 function nextQuestion() {
-    currentQuestion++;
-    loadQuestion();
+  currentQuestion++;
+  loadQuestion();
 }
 
-// Initial load
+/* start */
 loadQuestion();
 </script>
-
 </body>
 </html>
